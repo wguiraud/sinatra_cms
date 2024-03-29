@@ -3,6 +3,11 @@ require 'sinatra/reloader'
 require 'pry'
 require 'tilt/erubis'
 
+configure do 
+  enable :sessions
+  set :session_secret, SecureRandom.hex(32)
+end
+
 root = File.expand_path("..", __FILE__)
 
 def valid_files(root)
