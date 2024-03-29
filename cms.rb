@@ -10,25 +10,22 @@ end
 
 root = File.expand_path("..", __FILE__)
 
-def valid_files(root)
-  Dir.glob(root + "/data/*.txt").map do |path|
+get "/" do 
+  @files = Dir.glob(root + "/data/*").map do |path|
     File.basename(path)
   end
-end
-
-get "/" do 
-  @files = valid_files(root)
 
   erb :index 
 end
 
 get "/:file_name" do 
-  if valid_files(root).include?(params[:file_name])
-    file_path = root + "/data/" + params[:file_name]
+  file_path = root + "/data/" + params[:file_name]
+
+  if File.file?(file_path) 
     headers["Content-Type"] = "text/plain"
     File.read(file_path)
   else 
-    session[:error] = "#{params[:file_name]} doesn't exist!" unless params[:file_name] == "favicon.ico"
+    session[:error] = "#{params[:file_name]} doesn't exist!" 
     redirect "/" 
   end
 end

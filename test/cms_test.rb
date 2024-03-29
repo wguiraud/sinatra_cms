@@ -22,7 +22,7 @@ class CmsTest < Minitest::Test
     assert_includes last_response.body, "history.txt"
   end
 
-  def test_document
+  def test_valid_file_request
     get "/about.txt"
     assert_equal 200, last_response.status
     assert_includes last_response.body, "Yukihiro Matsumoto"
@@ -34,6 +34,20 @@ class CmsTest < Minitest::Test
     get "/history.txt"
     assert_equal 200, last_response.status
     assert_includes last_response.body, "2022 - Ruby 3.2 released."
+  end
+
+  def test_invalid_file_request
+    get "/:hello.txt"
+    
+    assert_equal 302, last_response.status
+
+    get last_response["Location"] 
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "hello.txt doesn't exist!"
+
+    get "/"
+    refute_includes last_response.body, "hello.txt doesn't exist!"
   end
 
 end
