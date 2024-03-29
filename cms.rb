@@ -28,7 +28,8 @@ get "/:file_name" do
     headers["Content-Type"] = "text/plain"
     File.read(file_path)
   else 
-    
+    session[:error] = "#{params[:file_name]} doesn't exist!" unless params[:file_name] == "favicon.ico"
+    redirect "/" 
   end
 
 end

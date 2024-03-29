@@ -4,11 +4,11 @@
     <title>CMS Project</title>
   </head>
   <body>
-    <header>
-      <h1>CMS</h1>
-    </header>
-
     <main>
+      <% if session[:error] %>
+        <strong><%= session.delete(:error) %></strong> 
+      <% end %>
+
       <ul> 
         <% @files.each do |file| %> 
           <li>
