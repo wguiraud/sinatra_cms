@@ -1,4 +1,4 @@
-ENV["RACK_ENV"]="test" # to let the sinatra object know that it doesn't have to run the web server when the tests are running!
+ENV["RACK_ENV"]="test" 
 
 require 'minitest/autorun'
 require 'rack/test'
