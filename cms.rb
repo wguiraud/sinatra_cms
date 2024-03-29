@@ -31,6 +31,5 @@ get "/:file_name" do
     session[:error] = "#{params[:file_name]} doesn't exist!" unless params[:file_name] == "favicon.ico"
     redirect "/" 
   end
-
 end
 
