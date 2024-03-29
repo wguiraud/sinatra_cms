@@ -24,9 +24,16 @@ class CmsTest < Minitest::Test
 
   def test_document
     get "/about.txt"
-
     assert_equal 200, last_response.status
     assert_includes last_response.body, "Yukihiro Matsumoto"
+
+    get "/changes.txt"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "1995 - Ruby 0.95 released."
+
+    get "/history.txt"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "2022 - Ruby 3.2 released."
   end
 
 end
