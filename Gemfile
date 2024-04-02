@@ -13,3 +13,5 @@ gem 'redcarpet'
 ruby '3.2.0'
 
 
+
+gem "rackup", "~> 2.1"
