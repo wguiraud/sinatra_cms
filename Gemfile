@@ -7,6 +7,7 @@ gem 'rubocop'
 gem 'erubis'
 gem 'minitest'
 gem 'rack-test'
+gem 'redcarpet'
 
 
 ruby '3.2.0'

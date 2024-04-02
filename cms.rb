@@ -2,6 +2,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'pry'
 require 'tilt/erubis'
+require 'redcarpet'
 
 configure do 
   enable :sessions
