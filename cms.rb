@@ -5,7 +5,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'pry'
 require 'tilt/erubis'
-require 'rubocop/minitest'
+require 'rubocop-minitest'
 
 configure do
   enable :sessions

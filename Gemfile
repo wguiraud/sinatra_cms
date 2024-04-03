@@ -8,12 +8,7 @@ gem 'erubis'
 gem 'minitest'
 gem 'rack-test'
 gem 'redcarpet'
-
-
-ruby '3.2.0'
-
-
-
+gem "rubocop-minitest", "~> 0.35.0"
 gem "rackup", "~> 2.1"
 
-gem "rubocop-minitest", "~> 0.35.0"
+ruby '3.2.0'

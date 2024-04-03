@@ -1,3 +1,2 @@
 require: rubocop-minitest
 
-# ... other configurations ...
