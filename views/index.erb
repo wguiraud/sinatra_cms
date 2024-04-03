@@ -8,6 +8,7 @@
       <% if session[:error] %>
         <strong><%= session.delete(:error) %></strong> 
       <% end %>
+
       <% if session[:success] %> 
         <strong><%= session.delete(:success) %></strong>
       <% end %>

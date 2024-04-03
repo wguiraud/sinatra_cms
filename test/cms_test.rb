@@ -26,7 +26,7 @@ class CmsTest < Minitest::Test
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
   end
 
-  def asset_plain_text_content_type
+  def assert_plain_text_content_type
     assert_equal 'text/plain', last_response['Content-Type']
   end
 
@@ -49,22 +49,7 @@ class CmsTest < Minitest::Test
     assert_body_includes('history.txt')
   end
 
-  def test_valid_file_request
-    get '/about.txt'
-
-    assert_two_hundred
-    assert_body_includes('Yukihiro Matsumoto')
-
-    get '/changes.txt'
-    assert_two_hundred
-    assert_body_includes('1995')
-
-    get '/history.txt'
-    assert_two_hundred
-    assert_body_includes('2020')
-  end
-
-  def test_invalid_file_request
+  def test_document_not_found
     get '/:hello.txt'
 
     assert_three_o_two
@@ -74,29 +59,43 @@ class CmsTest < Minitest::Test
     assert_body_includes("hello.txt doesn't exist!")
 
     get '/'
+    assert_two_hundred
     refute_body_includes("hello.txt doesn't exist!")
   end
 
-  def test_viewing_txt_markdown_files
+  def test_viewing_text_document
     get '/about.txt'
-
     assert_two_hundred
-    asset_plain_text_content_type
+    assert_plain_text_content_type
     assert_body_includes("\n")
+  end
 
+  def test_viewing_markdown_document
     get '/about.md'
     assert_two_hundred
     assert_html_content_type
     assert_body_includes('<h1>')
   end
 
-  def test_edit_file
-    get "/history.txt/edit"
-
+  def test_editing_document
+    get '/changes.txt/edit'
     assert_two_hundred
     assert_html_content_type
-    assert_body_includes('<textarea name=')
+    assert_body_includes('Edit content of changes.txt:')
+    assert_body_includes('<textarea')
     assert_body_includes('<button type="submit"')
   end
 
+  def test_updating_document
+    post "/history.txt", content: "new content"
+
+    assert_three_o_two
+    get last_response["Location"]
+
+    get "history.txt"
+    assert_two_hundred
+    assert_body_includes('new content') 
+
+
+  end
 end
