@@ -95,7 +95,5 @@ class CmsTest < Minitest::Test
     get "history.txt"
     assert_two_hundred
     assert_body_includes('new content') 
-
-
   end
 end
