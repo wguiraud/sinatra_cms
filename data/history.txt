@@ -13,4 +13,4 @@
 2018 - Ruby 2.6 released.
 2019 - Ruby 2.7 released.
 2020 - Ruby 3.0 released.
-2021 - Ruby 3.1 released.
+
