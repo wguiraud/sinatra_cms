@@ -48,3 +48,13 @@ get '/:file_name' do
     redirect '/'
   end
 end
+
+get "/:file_name/edit" do 
+  @file_name = params[:file_name]
+
+  file_path = "#{root}/data/#{params[:file_name]}"
+
+  @file_content = File.read(file_path)
+
+  erb :edit_file
+end
