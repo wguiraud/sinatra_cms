@@ -58,3 +58,17 @@ get "/:file_name/edit" do
 
   erb :edit_file
 end
+
+post "/:file_name" do 
+  file_name = params[:file_name]
+
+  file_path = "#{root}/data/#{params[:file_name]}"
+
+  File.open(file_path, 'w') do |file| 
+    file.write(params[:content])
+  end
+
+  session[:success] = "The #{file_name} file has been updated" 
+  redirect "/"
+end
+
