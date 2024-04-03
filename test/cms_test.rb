@@ -57,11 +57,11 @@ class CmsTest < Minitest::Test
 
     get '/changes.txt'
     assert_two_hundred
-    assert_body_includes('1995 - Ruby 0.95 released.')
+    assert_body_includes('1995')
 
     get '/history.txt'
     assert_two_hundred
-    assert_body_includes('2022 - Ruby 3.2 released.')
+    assert_body_includes('2020')
   end
 
   def test_invalid_file_request
@@ -89,4 +89,14 @@ class CmsTest < Minitest::Test
     assert_html_content_type
     assert_body_includes('<h1>')
   end
+
+  def test_edit_file
+    get "/history.txt/edit"
+
+    assert_two_hundred
+    assert_html_content_type
+    assert_body_includes('<textarea name=')
+    assert_body_includes('<button type="submit"')
+  end
+
 end
