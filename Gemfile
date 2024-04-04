@@ -12,3 +12,5 @@ gem "rubocop-minitest", "~> 0.35.0"
 gem "rackup", "~> 2.1"
 
 ruby '3.2.0'
+
+gem "fileutils", "~> 1.7"
