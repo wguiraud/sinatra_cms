@@ -12,7 +12,6 @@ configure do
   set :session_secret, SecureRandom.hex(32)
 end
 
-root = File.expand_path(__dir__)
 
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
@@ -30,8 +29,20 @@ def load_file_content(path)
   end
 end
 
+root = File.expand_path("..", __FILE__) # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data"
+
+def data_path
+	if ENV["RACK_ENV"] == "test"
+		File.expand_path("../test/data", __FILE__)
+  else
+    File.expand_path("../data", __FILE__)
+  end
+end
+
 get '/' do
-  @files = Dir.glob("#{root}/data/*").map do |path|
+  #pattern = data_path << "/*" # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data/*"
+  pattern = File.join(data_path, "*")
+  @files = Dir.glob(pattern).map do |path|
     File.basename(path)
   end
 
@@ -39,7 +50,8 @@ get '/' do
 end
 
 get '/:file_name' do
-  file_path = "#{root}/data/#{params[:file_name]}"
+  #file_path = "#{root}/data/#{params[:file_name]}"
+  file_path = File.join(data_path, params[:file_name])
 
   if File.exist?(file_path)
     load_file_content(file_path)
@@ -52,7 +64,8 @@ end
 get "/:file_name/edit" do 
   @file_name = params[:file_name]
 
-  file_path = "#{root}/data/#{params[:file_name]}"
+  #file_path = "#{root}/data/#{params[:file_name]}"
+  file_path = File.join(data_path, params[:file_name])
 
   @file_content = File.read(file_path)
 
@@ -62,7 +75,8 @@ end
 post "/:file_name" do 
   file_name = params[:file_name]
 
-  file_path = "#{root}/data/#{params[:file_name]}"
+  #file_path = "#{root}/data/#{params[:file_name]}"
+  file_path = File.join(data_path, params[:file_name])
 
   File.open(file_path, 'w') do |file| 
     file.write(params[:content])
