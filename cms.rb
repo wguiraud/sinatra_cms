@@ -24,6 +24,9 @@ def load_file_content(path)
   when '.txt'
     headers['Content-Type'] = 'text/plain'
     content
+  when '.rb'
+    headers['Content-Type'] = 'text/plain'
+    content
   when '.md'
     erb render_markdown(content)
   end
@@ -39,6 +42,18 @@ def data_path
   end
 end
 
+def create_document(name, content="")
+  File.open(File.join(data_path, name), 'w') do |file|
+    file.write(content)
+  end
+end
+
+def valid_filename?(filename)
+  pattern = /^[a-z_]{1,20}\.[a-z]{1,4}$/  # allows between 1 and 20 lowercase alphabetic characters for the basename including underscores. extention name between 1 and 4 lowercase alphabetic characters 
+
+  filename.match?(pattern) 
+end
+
 get '/' do
   #pattern = data_path << "/*" # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data/*"
   pattern = File.join(data_path, "*")
@@ -47,6 +62,22 @@ get '/' do
   end
 
   erb :index
+end
+
+get "/new" do 
+  erb :new
+end
+
+post "/create" do 
+  if valid_filename?(params[:filename])
+    create_document(params[:filename])
+    session[:message] = "The #{params[:filename]} file has been created" 
+    redirect "/"
+  else
+    session[:message] = "the name is not valid"
+    status 422
+    erb :new
+  end
 end
 
 get '/:file_name' do
@@ -87,4 +118,5 @@ post "/:file_name" do
   session[:message] = "The #{file_name} file has been updated" 
   redirect "/"
 end
+
 
