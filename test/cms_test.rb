@@ -69,6 +69,7 @@ class CmsTest < Minitest::Test
     create_document('history.txt', 'Ruby 0.95 released')
 
     get '/history.txt'
+
     assert_two_hundred
     assert_plain_text_content_type
     assert_body_includes('Ruby 0.95 released')
@@ -78,6 +79,7 @@ class CmsTest < Minitest::Test
     create_document('about.md', 'Ruby is...')
 
     get '/about.md'
+
     assert_two_hundred
     assert_html_content_type
     assert_body_includes('<p>Ruby is...</p>')
@@ -86,8 +88,9 @@ class CmsTest < Minitest::Test
   def test_document_not_found
     get '/notafile.ext'
 
-    assert_three_o_two
-    get last_response['location']
+    assert_three_o_two # consequence of the redirect call towards the home page
+
+    get last_response['location'] # where the location header is set to home rather than /:file_name 
 
     assert_two_hundred
     assert_body_includes("notafile.ext doesn't exist")
@@ -111,7 +114,8 @@ class CmsTest < Minitest::Test
 
     assert_body_includes('history.txt file has been updated')
 
-    get 'history.txt'
+    get 'history.txt' #new request to check if the document does include the new content
+    
     assert_two_hundred
     assert_body_includes('new content')
   end

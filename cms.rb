@@ -29,7 +29,7 @@ def load_file_content(path)
   end
 end
 
-root = File.expand_path("..", __FILE__) # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data"
+#root = File.expand_path("..", __FILE__) # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data"
 
 def data_path
 	if ENV["RACK_ENV"] == "test"
@@ -51,6 +51,8 @@ end
 
 get '/:file_name' do
   #file_path = "#{root}/data/#{params[:file_name]}"
+  #pattern = data_path << "/*" # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data/about.txt"
+  #pattern = data_path << "/*" # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data/changes.txt.txt"
   file_path = File.join(data_path, params[:file_name])
 
   if File.exist?(file_path)
