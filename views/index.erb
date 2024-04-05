@@ -1,20 +1,11 @@
 <!doctype html>
-<html lang="en-US">
-  <head>
-    <title>CMS Project</title>
-  </head>
-  <body>
-    <main>
-      <ul> 
-        <% @files.each do |file| %> 
-          <li>
-            <a href="/<%= file %>"><%= file %></a>
-            <br>
-            <a href="/<%= file %>/edit">Edit</a>
-          </li>
-        <% end %>
-      </ul>
-    </main>
-  </body>
-</html>
+<ul> 
+  <% @files.each do |file| %> 
+    <li>
+      <a href="/<%= file %>"><%= file %></a>
+      <br>
+      <a href="/<%= file %>/edit">Edit</a>
+    </li>
+  <% end %>
+</ul>
 
