@@ -58,7 +58,7 @@ get '/:file_name' do
   if File.exist?(file_path)
     load_file_content(file_path)
   else
-    session[:error] = "#{params[:file_name]} doesn't exist!"
+    session[:message] = "#{params[:file_name]} doesn't exist!"
     redirect '/'
   end
 end
@@ -84,7 +84,7 @@ post "/:file_name" do
     file.write(params[:content])
   end
 
-  session[:success] = "The #{file_name} file has been updated" 
+  session[:message] = "The #{file_name} file has been updated" 
   redirect "/"
 end
 
