@@ -79,16 +79,6 @@ post "/create" do
   end
 end
 
-post "/:file_name/delete" do 
-  file_name = params[:file_name]
-
-  file_path = File.join(data_path, params[:file_name]) 
-
-  File.delete(file_path)
-
-  session[:message] = "The #{file_name} file has been deleted!"
-  redirect '/'
-end
 
 get '/:file_name' do
   file_path = File.join(data_path, params[:file_name])
@@ -123,3 +113,15 @@ post "/:file_name" do
   session[:message] = "The #{file_name} file has been updated" 
   redirect "/"
 end
+
+post "/:file_name/delete" do 
+  file_name = params[:file_name]
+
+  file_path = File.join(data_path, params[:file_name]) 
+
+  File.delete(file_path)
+
+  session[:message] = "The #{file_name} file has been deleted!"
+  redirect '/'
+end
+
