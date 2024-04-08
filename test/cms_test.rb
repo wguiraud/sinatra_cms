@@ -149,7 +149,19 @@ class CmsTest < Minitest::Test
 
     assert_four_twenty_two
     assert_body_includes('the name is not valid')
-    
-
   end
+
+  def test_deleting_document
+    create_document('hello.txt')
+
+    post '/hello.txt/delete'
+    assert_three_o_two
+    get last_response["Location"]
+    assert_body_includes('The hello.txt file has been deleted!')
+
+    get '/'
+    refute_body_includes('hello.txt')
+  end
+
 end
+

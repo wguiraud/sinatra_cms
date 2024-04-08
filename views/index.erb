@@ -3,8 +3,10 @@
   <% @files.each do |file| %> 
     <li>
       <a href="/<%= file %>"><%= file %></a>
-      <br>
       <a href="/<%= file %>/edit">Edit</a>
+      <form class='inline' method='post' action='/<%= file %>/delete'>
+        <button type='submit'>Delete</button> 
+      </form>
     </li>
   <% end %>
 </ul>

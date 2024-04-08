@@ -49,13 +49,12 @@ def create_document(name, content="")
 end
 
 def valid_filename?(filename)
-  pattern = /^[a-z_]{1,20}\.[a-z]{1,4}$/  # allows between 1 and 20 lowercase alphabetic characters for the basename including underscores. extention name between 1 and 4 lowercase alphabetic characters 
+  pattern = /^[a-z0-9_]{1,20}\.[a-z]{1,4}$/  # allows between 1 and 20 lowercase alphabetic characters for the basename including underscores. extention name between 1 and 4 lowercase alphabetic characters 
 
   filename.match?(pattern) 
 end
 
 get '/' do
-  #pattern = data_path << "/*" # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data/*"
   pattern = File.join(data_path, "*")
   @files = Dir.glob(pattern).map do |path|
     File.basename(path)
@@ -80,10 +79,18 @@ post "/create" do
   end
 end
 
+post "/:file_name/delete" do 
+  file_name = params[:file_name]
+
+  file_path = File.join(data_path, params[:file_name]) 
+
+  File.delete(file_path)
+
+  session[:message] = "The #{file_name} file has been deleted!"
+  redirect '/'
+end
+
 get '/:file_name' do
-  #file_path = "#{root}/data/#{params[:file_name]}"
-  #pattern = data_path << "/*" # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data/about.txt"
-  #pattern = data_path << "/*" # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data/changes.txt.txt"
   file_path = File.join(data_path, params[:file_name])
 
   if File.exist?(file_path)
@@ -97,7 +104,6 @@ end
 get "/:file_name/edit" do 
   @file_name = params[:file_name]
 
-  #file_path = "#{root}/data/#{params[:file_name]}"
   file_path = File.join(data_path, params[:file_name])
 
   @file_content = File.read(file_path)
@@ -108,7 +114,6 @@ end
 post "/:file_name" do 
   file_name = params[:file_name]
 
-  #file_path = "#{root}/data/#{params[:file_name]}"
   file_path = File.join(data_path, params[:file_name])
 
   File.open(file_path, 'w') do |file| 
@@ -118,5 +123,3 @@ post "/:file_name" do
   session[:message] = "The #{file_name} file has been updated" 
   redirect "/"
 end
-
-
