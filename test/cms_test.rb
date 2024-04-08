@@ -37,6 +37,10 @@ class CmsTest < Minitest::Test
     assert_equal 302, last_response.status
   end
 
+  def assert_four_twenty_two
+    assert_equal 422, last_response.status
+  end
+
   def assert_html_content_type
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
   end
@@ -118,5 +122,34 @@ class CmsTest < Minitest::Test
     
     assert_two_hundred
     assert_body_includes('new content')
+  end
+
+  def test_view_new_document_form
+    get '/new'
+
+    assert_two_hundred
+    assert_body_includes('<label for="filename">Add new document:</label>')
+    assert_body_includes('<input name="filename" id="filename"/>')
+    assert_body_includes('<button type="submit">Create</button>')
+  end
+
+  def test_create_new_document
+    post '/create', filename: 'hello.txt' 
+
+    assert_three_o_two
+    get last_response['Location']
+    assert_body_includes('hello.txt file has been created')
+
+    get '/'
+    assert_body_includes('hello.txt')
+  end
+
+  def test_create_new_document_without_correct_filename
+    post '/create', filename: 'HELLO.TXT'
+
+    assert_four_twenty_two
+    assert_body_includes('the name is not valid')
+    
+
   end
 end
