@@ -163,5 +163,55 @@ class CmsTest < Minitest::Test
     refute_body_includes('hello.txt')
   end
 
+  def test_sign_in_link
+    get '/'
+
+    assert_two_hundred
+    assert_body_includes("<p class='user-status'>")
+    assert_body_includes("<a href='/users/signin'>Sign In</a>")
+  end
+
+  def test_signin_form
+    get '/users/signin'
+
+    assert_two_hundred
+    assert_body_includes("<label for='username'>Username:")
+    assert_body_includes("<input name='username' id='username' value=")
+    assert_body_includes("<label for='password'>Password:")
+    assert_body_includes("<input name='password' id='password' type='password'/>")
+    assert_body_includes("<button type='submit'>Sign In</button>")
+  end
+
+  def test_signing_in_successfully
+    post '/users/signin', username: 'admin', password: 'secret'
+    assert_three_o_two
+
+    get last_response["Location"]
+    assert_two_hundred
+    assert_body_includes('Welcome')
+    assert_body_includes("<p class='user-status'>Signed in as admin.")
+    assert_body_includes("<button type='submit'>Sign Out</button>")
+  end
+
+  def test_signing_in_unsuccessfully
+    post '/users/signin', username: 'zero', password: 'hello'
+    assert_four_twenty_two
+    assert_body_includes("invalid username or password")
+  end
+
+  def test_signing_out
+    post '/users/signin', username: 'admin', password: 'secret'
+    assert_three_o_two
+    get last_response["Location"]
+    assert_two_hundred
+    assert_body_includes('Welcome')
+
+    post '/users/signout'
+    assert_three_o_two
+    get last_response["Location"]
+
+    assert_body_includes("You have been signed out.")
+    assert_body_includes("Sign In")
+  end
 end
 

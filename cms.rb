@@ -142,7 +142,7 @@ post '/users/signin' do
 end
 
 post '/users/signout' do 
-  session.delete(:username)
+  session.delete(:username) #how do you access the session while testing? 
   session[:message] = "You have been signed out."
   redirect "/"
 end
