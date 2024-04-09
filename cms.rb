@@ -125,3 +125,24 @@ post "/:file_name/delete" do
   redirect '/'
 end
 
+get '/users/signin' do 
+  erb :signin
+end
+
+post '/users/signin' do 
+  if params[:username] == 'admin' && params[:password] == 'secret'
+    session[:username] = params[:username] 
+    session[:message] = 'Welcome'
+    redirect '/'
+  else 
+    session[:message] = 'invalid username or password'
+    status 422 #request contains semantic errors
+    erb :signin
+  end
+end
+
+post '/users/signout' do 
+  session.delete(:username)
+  session[:message] = "You have been signed out."
+  redirect "/"
+end
