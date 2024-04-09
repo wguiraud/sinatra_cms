@@ -3,7 +3,7 @@
 ENV['RACK_ENV'] = 'test'
 
 require 'minitest/autorun'
-require 'rack/test'
+require 'rack/test' #makes last_response available
 require 'fileutils'
 
 require_relative '../cms'
@@ -57,6 +57,10 @@ class CmsTest < Minitest::Test
     refute_includes last_response.body, text
   end
 
+  def session
+    last_request.env["rack.session"]
+  end
+
   def test_index
     create_document('about.md')
     create_document('changes.txt')
@@ -92,12 +96,8 @@ class CmsTest < Minitest::Test
   def test_document_not_found
     get '/notafile.ext'
 
-    assert_three_o_two # consequence of the redirect call towards the home page
-
-    get last_response['location'] # where the location header is set to home rather than /:file_name 
-
-    assert_two_hundred
-    assert_body_includes("notafile.ext doesn't exist")
+    assert_three_o_two 
+    assert_equal "notafile.ext doesn't exist!", session[:message]
   end
 
   def test_editing_document
@@ -114,12 +114,9 @@ class CmsTest < Minitest::Test
     post '/history.txt', content: 'new content'
 
     assert_three_o_two
-    get last_response['Location']
-
-    assert_body_includes('history.txt file has been updated')
+    assert_equal 'The history.txt file has been updated', session[:message]
 
     get 'history.txt' #new request to check if the document does include the new content
-    
     assert_two_hundred
     assert_body_includes('new content')
   end
@@ -135,10 +132,8 @@ class CmsTest < Minitest::Test
 
   def test_create_new_document
     post '/create', filename: 'hello.txt' 
-
     assert_three_o_two
-    get last_response['Location']
-    assert_body_includes('hello.txt file has been created')
+    assert_equal 'The hello.txt file has been created', session[:message]
 
     get '/'
     assert_body_includes('hello.txt')
@@ -156,11 +151,10 @@ class CmsTest < Minitest::Test
 
     post '/hello.txt/delete'
     assert_three_o_two
-    get last_response["Location"]
-    assert_body_includes('The hello.txt file has been deleted!')
+    assert_equal 'The hello.txt file has been deleted!', session[:message]
 
     get '/'
-    refute_body_includes('hello.txt')
+    refute_body_includes("<a href='hello.txt'")
   end
 
   def test_sign_in_link
@@ -185,10 +179,10 @@ class CmsTest < Minitest::Test
   def test_signing_in_successfully
     post '/users/signin', username: 'admin', password: 'secret'
     assert_three_o_two
+    assert_equal 'Welcome', session[:message]
+    assert_equal 'admin', session[:username]
 
     get last_response["Location"]
-    assert_two_hundred
-    assert_body_includes('Welcome')
     assert_body_includes("<p class='user-status'>Signed in as admin.")
     assert_body_includes("<button type='submit'>Sign Out</button>")
   end
@@ -196,21 +190,20 @@ class CmsTest < Minitest::Test
   def test_signing_in_unsuccessfully
     post '/users/signin', username: 'zero', password: 'hello'
     assert_four_twenty_two
+    assert_nil session[:username]
     assert_body_includes("invalid username or password")
   end
 
   def test_signing_out
-    post '/users/signin', username: 'admin', password: 'secret'
-    assert_three_o_two
-    get last_response["Location"]
-    assert_two_hundred
-    assert_body_includes('Welcome')
+    get "/", {}, {"rack.session" => { username: "admin" } }
+    assert_body_includes("Signed in as admin")
 
-    post '/users/signout'
-    assert_three_o_two
+    post "/users/signout"
+    assert_equal "You have been signed out.", session[:message]
+
     get last_response["Location"]
 
-    assert_body_includes("You have been signed out.")
+    assert_nil session[:username]
     assert_body_includes("Sign In")
   end
 end
