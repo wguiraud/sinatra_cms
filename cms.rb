@@ -12,7 +12,6 @@ configure do
   set :session_secret, SecureRandom.hex(32)
 end
 
-
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(text)
@@ -23,47 +22,47 @@ def load_file_content(path)
   case File.extname(path)
   when '.md'
     erb render_markdown(content)
-  else 
+  else
     headers['Content-Type'] = 'text/plain'
     content
   end
 end
 
-#root = File.expand_path("..", __FILE__) # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data"
+# root = File.expand_path("..", __FILE__) # => "/home/launchschool/Documents/LS/LS175/Project_File_Based_CMS_1/data"
 
 def data_path
-	if ENV["RACK_ENV"] == "test"
-		File.expand_path("../test/data", __FILE__)
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('test/data', __dir__)
   else
-    File.expand_path("../data", __FILE__)
+    File.expand_path('data', __dir__)
   end
 end
 
-def create_document(name, content="")
+def create_document(name, content = '')
   File.open(File.join(data_path, name), 'w') do |file|
     file.write(content)
   end
 end
 
 def valid_filename?(filename)
-  pattern = /^[a-z0-9_]{1,20}\.[a-z]{1,4}$/  # allows between 1 and 20 lowercase alphabetic characters for the basename including underscores. extention name between 1 and 4 lowercase alphabetic characters 
+  pattern = /^[a-z0-9_]{1,20}\.[a-z]{1,4}$/ # allows between 1 and 20 lowercase alphabetic characters for the basename including underscores. extention name between 1 and 4 lowercase alphabetic characters
 
-  filename.match?(pattern) 
+  filename.match?(pattern)
 end
 
 def user_signed_in?
   session[:username] == 'admin'
 end
 
-def require_signed_in_user 
-  unless user_signed_in?
-    session[:message] = "You must be signed in to do that"
-    redirect '/'
-  end
+def require_signed_in_user
+  return if user_signed_in?
+
+  session[:message] = 'You must be signed in to do that'
+  redirect '/'
 end
 
 get '/' do
-  pattern = File.join(data_path, "*")
+  pattern = File.join(data_path, '*')
   @files = Dir.glob(pattern).map do |path|
     File.basename(path)
   end
@@ -71,25 +70,24 @@ get '/' do
   erb :index
 end
 
-get "/new" do 
+get '/new' do
   require_signed_in_user
   erb :new
 end
 
-post "/create" do 
+post '/create' do
   require_signed_in_user
 
   if valid_filename?(params[:filename])
     create_document(params[:filename])
-    session[:message] = "The #{params[:filename]} file has been created" 
-    redirect "/"
+    session[:message] = "The #{params[:filename]} file has been created"
+    redirect '/'
   else
-    session[:message] = "the name is not valid"
+    session[:message] = 'the name is not valid'
     status 422
     erb :new
   end
 end
-
 
 get '/:file_name' do
   file_path = File.join(data_path, params[:file_name])
@@ -102,9 +100,9 @@ get '/:file_name' do
   end
 end
 
-get "/:file_name/edit" do 
+get '/:file_name/edit' do
   require_signed_in_user
-  
+
   @file_name = params[:file_name]
 
   file_path = File.join(data_path, params[:file_name])
@@ -114,27 +112,27 @@ get "/:file_name/edit" do
   erb :edit_file
 end
 
-post "/:file_name" do 
+post '/:file_name' do
   require_signed_in_user
 
   file_name = params[:file_name]
 
   file_path = File.join(data_path, params[:file_name])
 
-  File.open(file_path, 'w') do |file| 
+  File.open(file_path, 'w') do |file|
     file.write(params[:content])
   end
 
-  session[:message] = "The #{file_name} file has been updated" 
-  redirect "/"
+  session[:message] = "The #{file_name} file has been updated"
+  redirect '/'
 end
 
-post "/:file_name/delete" do 
+post '/:file_name/delete' do
   require_signed_in_user
-  
+
   file_name = params[:file_name]
 
-  file_path = File.join(data_path, params[:file_name]) 
+  file_path = File.join(data_path, params[:file_name])
 
   File.delete(file_path)
 
@@ -142,24 +140,24 @@ post "/:file_name/delete" do
   redirect '/'
 end
 
-get '/users/signin' do 
+get '/users/signin' do
   erb :signin
 end
 
-post '/users/signin' do 
+post '/users/signin' do
   if params[:username] == 'admin' && params[:password] == 'secret'
-    session[:username] = params[:username] 
+    session[:username] = params[:username]
     session[:message] = 'Welcome'
     redirect '/'
-  else 
+  else
     session[:message] = 'invalid username or password'
-    status 422 #request contains semantic errors
+    status 422 # request contains semantic errors
     erb :signin
   end
 end
 
-post '/users/signout' do 
-  session.delete(:username) #how do you access the session while testing? 
-  session[:message] = "You have been signed out."
-  redirect "/"
+post '/users/signout' do
+  session.delete(:username) # how do you access the session while testing?
+  session[:message] = 'You have been signed out.'
+  redirect '/'
 end
