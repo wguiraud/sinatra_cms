@@ -3,7 +3,7 @@
 ENV['RACK_ENV'] = 'test'
 
 require 'minitest/autorun'
-require 'rack/test' #makes last_response available
+require 'rack/test' # makes last_response available
 require 'fileutils'
 
 require_relative '../cms'
@@ -58,11 +58,11 @@ class CmsTest < Minitest::Test
   end
 
   def session
-    last_request.env["rack.session"]
+    last_request.env['rack.session']
   end
 
   def admin_session
-    { "rack.session" => { username: "admin" }} 
+    { 'rack.session' => { username: 'admin' } }
   end
 
   def test_index
@@ -100,33 +100,50 @@ class CmsTest < Minitest::Test
   def test_document_not_found
     get '/notafile.ext'
 
-    assert_three_o_two 
+    assert_three_o_two
     assert_equal "notafile.ext doesn't exist!", session[:message]
   end
 
   def test_editing_document
     create_document('changes.txt')
 
-    get '/changes.txt/edit'
+    get '/changes.txt/edit', {}, admin_session
 
     assert_two_hundred
     assert_body_includes('<textarea')
+
     assert_body_includes('<button type="submit"')
   end
 
+  def test_editing_document_signed_out
+    create_document('hello.txt')
+
+    get '/hello.txt/edit'
+
+    assert_three_o_two
+    assert_equal 'You must be signed in to do that', session[:message]
+  end
+
   def test_updating_document
-    post '/history.txt', content: 'new content'
+    post '/history.txt', { content: 'new content' }, admin_session
 
     assert_three_o_two
     assert_equal 'The history.txt file has been updated', session[:message]
 
-    get 'history.txt' #new request to check if the document does include the new content
+    get 'history.txt' # new request to check if the document does include the new content
     assert_two_hundred
     assert_body_includes('new content')
   end
 
+  def test_updating_document_signed_out
+    post '/history.txt', content: 'new content'
+
+    assert_three_o_two
+    assert_equal 'You must be signed in to do that', session[:message]
+  end
+
   def test_view_new_document_form
-    get '/new'
+    get '/new', {}, admin_session
 
     assert_two_hundred
     assert_body_includes('<label for="filename">Add new document:</label>')
@@ -135,7 +152,7 @@ class CmsTest < Minitest::Test
   end
 
   def test_create_new_document
-    post '/create', filename: 'hello.txt' 
+    post '/create', { filename: 'hello.txt' }, admin_session
     assert_three_o_two
     assert_equal 'The hello.txt file has been created', session[:message]
 
@@ -143,8 +160,15 @@ class CmsTest < Minitest::Test
     assert_body_includes('hello.txt')
   end
 
+  def test_create_new_document_signed_out
+    post '/create', filename: 'hello.txt'
+
+    assert_three_o_two
+    assert_equal 'You must be signed in to do that', session[:message]
+  end
+
   def test_create_new_document_without_correct_filename
-    post '/create', filename: 'HELLO.TXT'
+    post '/create', { filename: 'HELLO.TXT' }, admin_session
 
     assert_four_twenty_two
     assert_body_includes('the name is not valid')
@@ -153,12 +177,20 @@ class CmsTest < Minitest::Test
   def test_deleting_document
     create_document('hello.txt')
 
-    post '/hello.txt/delete'
+    post '/hello.txt/delete', {}, admin_session
     assert_three_o_two
     assert_equal 'The hello.txt file has been deleted!', session[:message]
 
     get '/'
     refute_body_includes("<a href='hello.txt'")
+  end
+
+  def test_deleting_document_signed_out
+    create_document('hello.txt')
+
+    post '/hello.txt/delete'
+    assert_three_o_two
+    assert_equal 'You must be signed in to do that', session[:message]
   end
 
   def test_sign_in_link
@@ -186,7 +218,7 @@ class CmsTest < Minitest::Test
     assert_equal 'Welcome', session[:message]
     assert_equal 'admin', session[:username]
 
-    get last_response["Location"]
+    get last_response['Location']
     assert_body_includes("<p class='user-status'>Signed in as admin.")
     assert_body_includes("<button type='submit'>Sign Out</button>")
   end
@@ -195,20 +227,19 @@ class CmsTest < Minitest::Test
     post '/users/signin', username: 'zero', password: 'hello'
     assert_four_twenty_two
     assert_nil session[:username]
-    assert_body_includes("invalid username or password")
+    assert_body_includes('invalid username or password')
   end
 
   def test_signing_out
-    get "/", {}, {"rack.session" => { username: "admin" } }
-    assert_body_includes("Signed in as admin")
+    get '/', {}, { 'rack.session' => { username: 'admin' } }
+    assert_body_includes('Signed in as admin')
 
-    post "/users/signout"
-    assert_equal "You have been signed out.", session[:message]
+    post '/users/signout'
+    assert_equal 'You have been signed out.', session[:message]
 
-    get last_response["Location"]
+    get last_response['Location']
 
     assert_nil session[:username]
-    assert_body_includes("Sign In")
+    assert_body_includes('Sign In')
   end
 end
-
