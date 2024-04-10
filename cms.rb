@@ -50,8 +50,16 @@ def valid_filename?(filename)
   filename.match?(pattern)
 end
 
+def valid_credentials?(username, password)
+  username_pattern = /^[a-zA-Z]{1,20}[_\.]?[a-zA-Z]{1,20}$/ # allows between 1 and 20 lowercase alphabetic characters for the basename including underscores. extention name between 1 and 4 lowercase alphabetic characters
+  password_pattern = /^[a-zA-Z0-9!@#$%^&*]{1,20}$/ # allows between 1 and 20 lowercase alphabetic characters for the basename including underscores. extention name between 1 and 4 lowercase alphabetic characters
+
+  username.match?(username_pattern) && password.match?(password_pattern)
+end
+
+
 def user_signed_in?
-  session[:username] == 'admin'
+  session[:username] 
 end
 
 def require_signed_in_user
@@ -145,7 +153,7 @@ get '/users/signin' do
 end
 
 post '/users/signin' do
-  if params[:username] == 'admin' && params[:password] == 'secret'
+  if valid_credentials?(params[:username], params[:password])
     session[:username] = params[:username]
     session[:message] = 'Welcome'
     redirect '/'

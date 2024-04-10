@@ -224,7 +224,7 @@ class CmsTest < Minitest::Test
   end
 
   def test_signing_in_unsuccessfully
-    post '/users/signin', username: 'zero', password: 'hello'
+    post '/users/signin', username: '    ', password: '     '
     assert_four_twenty_two
     assert_nil session[:username]
     assert_body_includes('invalid username or password')
