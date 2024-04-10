@@ -61,6 +61,10 @@ class CmsTest < Minitest::Test
     last_request.env["rack.session"]
   end
 
+  def admin_session
+    { "rack.session" => { username: "admin" }} 
+  end
+
   def test_index
     create_document('about.md')
     create_document('changes.txt')

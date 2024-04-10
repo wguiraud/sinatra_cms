@@ -21,14 +21,11 @@ end
 def load_file_content(path)
   content = File.read(path)
   case File.extname(path)
-  when '.txt'
-    headers['Content-Type'] = 'text/plain'
-    content
-  when '.rb'
-    headers['Content-Type'] = 'text/plain'
-    content
   when '.md'
     erb render_markdown(content)
+  else 
+    headers['Content-Type'] = 'text/plain'
+    content
   end
 end
 
@@ -54,6 +51,17 @@ def valid_filename?(filename)
   filename.match?(pattern) 
 end
 
+def user_signed_in?
+  session[:username] == 'admin'
+end
+
+def require_signed_in_user 
+  unless user_signed_in?
+    session[:message] = "You must be signed in to do that"
+    redirect '/'
+  end
+end
+
 get '/' do
   pattern = File.join(data_path, "*")
   @files = Dir.glob(pattern).map do |path|
@@ -64,10 +72,13 @@ get '/' do
 end
 
 get "/new" do 
+  require_signed_in_user
   erb :new
 end
 
 post "/create" do 
+  require_signed_in_user
+
   if valid_filename?(params[:filename])
     create_document(params[:filename])
     session[:message] = "The #{params[:filename]} file has been created" 
@@ -92,6 +103,8 @@ get '/:file_name' do
 end
 
 get "/:file_name/edit" do 
+  require_signed_in_user
+  
   @file_name = params[:file_name]
 
   file_path = File.join(data_path, params[:file_name])
@@ -102,6 +115,8 @@ get "/:file_name/edit" do
 end
 
 post "/:file_name" do 
+  require_signed_in_user
+
   file_name = params[:file_name]
 
   file_path = File.join(data_path, params[:file_name])
@@ -115,6 +130,8 @@ post "/:file_name" do
 end
 
 post "/:file_name/delete" do 
+  require_signed_in_user
+  
   file_name = params[:file_name]
 
   file_path = File.join(data_path, params[:file_name]) 
