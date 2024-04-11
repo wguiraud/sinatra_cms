@@ -213,18 +213,18 @@ class CmsTest < Minitest::Test
   end
 
   def test_signing_in_successfully
-    post '/users/signin', username: 'admin', password: 'secret'
+    post '/users/signin', username: 'hello'
     assert_three_o_two
     assert_equal 'Welcome', session[:message]
-    assert_equal 'admin', session[:username]
+    assert_equal 'hello', session[:username]
 
     get last_response['Location']
-    assert_body_includes("<p class='user-status'>Signed in as admin.")
+    assert_body_includes("<p class='user-status'>Signed in as hello.")
     assert_body_includes("<button type='submit'>Sign Out</button>")
   end
 
   def test_signing_in_unsuccessfully
-    post '/users/signin', username: '    ', password: '     '
+    post '/users/signin', username: '    '
     assert_four_twenty_two
     assert_nil session[:username]
     assert_body_includes('invalid username or password')
