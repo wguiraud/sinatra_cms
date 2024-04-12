@@ -213,13 +213,13 @@ class CmsTest < Minitest::Test
   end
 
   def test_signing_in_successfully
-    post '/users/signin', username: 'hello'
+    post '/users/signin', username: 'dev', password: 'letmein'
     assert_three_o_two
     assert_equal 'Welcome', session[:message]
-    assert_equal 'hello', session[:username]
+    assert_equal 'dev', session[:username]
 
     get last_response['Location']
-    assert_body_includes("<p class='user-status'>Signed in as hello.")
+    assert_body_includes("<p class='user-status'>Signed in as dev.")
     assert_body_includes("<button type='submit'>Sign Out</button>")
   end
 

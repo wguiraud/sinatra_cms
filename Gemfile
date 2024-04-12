@@ -16,3 +16,5 @@ ruby '3.2.0'
 gem "fileutils", "~> 1.7"
 
 gem "yaml", "~> 0.3.0"
+
+gem "bcrypt", "~> 3.1"

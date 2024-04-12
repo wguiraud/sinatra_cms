@@ -7,6 +7,7 @@ require 'pry'
 require 'tilt/erubis'
 require 'rubocop-minitest'
 require 'yaml'
+require 'bcrypt'
 
 configure do
   enable :sessions
@@ -72,13 +73,25 @@ end
 
 def load_user_credentials
   credentials_path = if ENV["RACK_ENV"] == 'test'
-    File.expand_path("../test/users.yml", __FILE__)
+    File.expand_path("../test/users2.yml", __FILE__)
   else
-    File.expand_path("../users.yml", __FILE__)
+    File.expand_path("../users2.yml", __FILE__)
   end
 
   YAML.load_file(credentials_path)
 end
+
+def valid_credentials?(username, password)
+  credentials = load_user_credentials
+
+  if credentials.key?(username)
+    bcrypt_password = BCrypt::Password.new(credentials[username])
+    bcrypt_password == password # this is BCrypt#==(secret) method!!!!which has a special implementation!!!!
+  else 
+    false
+  end
+end
+
 
 get '/' do
   pattern = File.join(data_path, '*')
@@ -167,7 +180,7 @@ post '/users/signin' do
   credentials = load_user_credentials
   username = params[:username]
 
-  if credentials.key?(username) && credentials[:username] == params[:password] 
+  if valid_credentials?(username, params[:password])
 
     session[:username] = username 
     session[:message] = 'Welcome'
