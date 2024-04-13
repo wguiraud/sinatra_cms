@@ -242,4 +242,18 @@ class CmsTest < Minitest::Test
     assert_nil session[:username]
     assert_body_includes('Sign In')
   end
+
+  def test_duplicate_file
+    create_document('hello.txt')
+
+    post '/hello.txt/duplicate', {}, admin_session
+    assert_three_o_two
+    assert_equal 'The hello.txt file has been duplicated!', session[:message]
+
+    get '/'
+    assert_body_includes("hello.txt-copy-")
+
+    post '/hello.txt/delete', {}, admin_session
+  end
 end
+

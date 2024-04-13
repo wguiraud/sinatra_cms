@@ -92,6 +92,27 @@ def valid_credentials?(username, password)
   end
 end
 
+def get_current_time_as_string
+  Time.now.strftime('%Y-%m-%d-%H%M:%S')
+end
+
+def clean_up_filename(filename)
+  if filename.include?("copy")
+    filename.gsub!(/-copy-\d{4}-\d{2}-\d{2}-\d{4}:\d{2}/, "")
+  else
+    filename
+  end
+end
+
+def duplicate_file(dfn, fp)
+  FileUtils.touch(dfn)
+
+  FileUtils.copy_file(fp, dfn)
+
+  duplicated_file_content = File.read(dfn)
+
+  create_document(dfn, content = duplicated_file_content)
+end
 
 get '/' do
   pattern = File.join(data_path, '*')
@@ -196,4 +217,27 @@ post '/users/signout' do
   session.delete(:username) # how do you access the session while testing?
   session[:message] = 'You have been signed out.'
   redirect '/'
+end
+
+post '/:file_name/duplicate' do 
+  require_signed_in_user
+
+  file_name = params[:file_name]
+
+  file_path = File.join(data_path, params[:file_name])
+
+  clean_up_filename(file_name)
+
+  duplicated_file_name = "#{file_name}-copy-#{get_current_time_as_string}"
+
+  duplicate_file(duplicated_file_name, file_path)
+# 
+  # ensure that the user is signed in when requiring to duplicate the file
+  # naming convention when the duplicated file is created 
+  # ensuring that the duplicated file is saved correctly
+#
+  session[:message] = "The #{file_name} file has been duplicated!"
+  redirect '/'
+
+
 end
