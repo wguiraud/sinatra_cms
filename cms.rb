@@ -93,12 +93,12 @@ def valid_credentials?(username, password)
 end
 
 def get_current_time_as_string
-  Time.now.strftime('%Y-%m-%d-%H%M:%S')
+  Time.now.strftime('%Y-%m-%d-%H:%M:%S')
 end
 
 def clean_up_filename(filename)
   if filename.include?("copy")
-    filename.gsub!(/-copy-\d{4}-\d{2}-\d{2}-\d{4}:\d{2}/, "")
+    filename.gsub!(/-copy-\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2}/, "")
   else
     filename
   end
@@ -222,13 +222,11 @@ end
 post '/:file_name/duplicate' do 
   require_signed_in_user
 
-  file_name = params[:file_name]
-
   file_path = File.join(data_path, params[:file_name])
 
-  clean_up_filename(file_name)
+  clean_up_filename(params[:file_name])
 
-  duplicated_file_name = "#{file_name}-copy-#{get_current_time_as_string}"
+  duplicated_file_name = "#{clean_up_filename(params[:file_name])}-copy-#{get_current_time_as_string}"
 
   duplicate_file(duplicated_file_name, file_path)
 # 
@@ -236,7 +234,7 @@ post '/:file_name/duplicate' do
   # naming convention when the duplicated file is created 
   # ensuring that the duplicated file is saved correctly
 #
-  session[:message] = "The #{file_name} file has been duplicated!"
+  session[:message] = "The #{params[:file_name]} file has been duplicated!"
   redirect '/'
 
 
