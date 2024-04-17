@@ -239,3 +239,7 @@ post '/:file_name/duplicate' do
 
 
 end
+
+get "/signup" do 
+  "hello from future signup page"
+end
